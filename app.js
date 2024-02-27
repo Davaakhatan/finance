@@ -1,15 +1,38 @@
 // Display controller
-var uiController = (function () {})();
+var uiController = (function () {
+
+  var DOMstring = {
+    inputType: ".add__type",
+    inputDescription: ".add__description",
+    inputValue: ".add__value",
+    addBtn: ".add__btn"
+  }
+
+
+  return {
+    getInput: function () {
+      return {
+        type: document.querySelector(DOMstring.inputType).value,
+        description: document.querySelector(DOMstring.inputDescription).value,
+        value: document.querySelector(DOMstring.inputValue).value,
+      };
+    },
+
+    getDOMstrings: function(){
+      return DOMstring;
+    }
+  };
+})();
 
 // Finance Controller
 var financeController = (function () {})();
 
 // App connector controller
 var appController = (function (uiController, financeController) {
+  var DOM = uiController.getDOMstrings();
   var ctrlAddItem = function () {
     // 1. Find input data from display
-
-    console.log("Get the data from display ");
+    console.log(uiController.getInput());
 
     // 2. Save the data to the finance controller
 
@@ -20,7 +43,7 @@ var appController = (function (uiController, financeController) {
     // 5. Final remainder, display calculated data
   };
 
-  document.querySelector(".add__btn").addEventListener("click", function () {
+  document.querySelector(DOM.addBtn).addEventListener("click", function () {
     ctrlAddItem();
   });
   document.addEventListener("keypress", function (event) {
