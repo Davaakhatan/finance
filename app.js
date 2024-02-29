@@ -1,13 +1,11 @@
 // Display controller
 var uiController = (function () {
-
   var DOMstring = {
     inputType: ".add__type",
     inputDescription: ".add__description",
     inputValue: ".add__value",
-    addBtn: ".add__btn"
-  }
-
+    addBtn: ".add__btn",
+  };
 
   return {
     getInput: function () {
@@ -18,9 +16,9 @@ var uiController = (function () {
       };
     },
 
-    getDOMstrings: function(){
+    getDOMstrings: function () {
       return DOMstring;
-    }
+    },
   };
 })();
 
@@ -29,7 +27,6 @@ var financeController = (function () {})();
 
 // App connector controller
 var appController = (function (uiController, financeController) {
-  var DOM = uiController.getDOMstrings();
   var ctrlAddItem = function () {
     // 1. Find input data from display
     console.log(uiController.getInput());
@@ -43,15 +40,25 @@ var appController = (function (uiController, financeController) {
     // 5. Final remainder, display calculated data
   };
 
-  document.querySelector(DOM.addBtn).addEventListener("click", function () {
-    ctrlAddItem();
-  });
-  document.addEventListener("keypress", function (event) {
-    if (event.keyCode === 13 || event.which === 13) {
+  var setupEventListener = function () {
+    var DOM = uiController.getDOMstrings();
+    document.querySelector(DOM.addBtn).addEventListener("click", function () {
       ctrlAddItem();
-    } else {
+    });
+    document.addEventListener("keypress", function (event) {
+      if (event.keyCode === 13 || event.which === 13) {
+        ctrlAddItem();
+      } else {
+      }
+    });
+  };
+
+  return {
+    init: function(){
+      console.log('Application started...');
+      setupEventListener();
     }
-  });
+  }
 })(uiController, financeController);
 
 /*
