@@ -23,7 +23,31 @@ var uiController = (function () {
 })();
 
 // Finance Controller
-var financeController = (function () {})();
+var financeController = (function () {
+  var Income = function (id, description, value) {
+    this.id = id;
+    this.description = description;
+    this.value = value;
+  };
+
+  var Expense = function (id, description, value) {
+    this.id = id;
+    this.description = description;
+    this.value = value;
+  };
+
+  var data = {
+    allItems: {
+      inc: [],
+      exp: [],
+    },
+
+    totals: {
+      inc: 0,
+      exp: 0,
+    },
+  };
+})();
 
 // App connector controller
 var appController = (function (uiController, financeController) {
@@ -54,11 +78,11 @@ var appController = (function (uiController, financeController) {
   };
 
   return {
-    init: function(){
-      console.log('Application started...');
+    init: function () {
+      console.log("Application started...");
       setupEventListener();
-    }
-  }
+    },
+  };
 })(uiController, financeController);
 
 /*
