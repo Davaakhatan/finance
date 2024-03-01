@@ -1,61 +1,90 @@
 // Display controller
-var uiController = (function () {
-  var DOMstring = {
+var uiController = (function() {
+  var DOMstrings = {
     inputType: ".add__type",
     inputDescription: ".add__description",
     inputValue: ".add__value",
-    addBtn: ".add__btn",
+    addBtn: ".add__btn"
   };
 
   return {
-    getInput: function () {
+    getInput: function() {
       return {
-        type: document.querySelector(DOMstring.inputType).value,
-        description: document.querySelector(DOMstring.inputDescription).value,
-        value: document.querySelector(DOMstring.inputValue).value,
+        type: document.querySelector(DOMstrings.inputType).value, // exp, inc
+        description: document.querySelector(DOMstrings.inputDescription).value,
+        value: document.querySelector(DOMstrings.inputValue).value
       };
     },
 
-    getDOMstrings: function () {
-      return DOMstring;
-    },
+    getDOMstrings: function() {
+      return DOMstrings;
+    }
   };
 })();
 
 // Finance Controller
-var financeController = (function () {
-  var Income = function (id, description, value) {
+// private function
+var financeController = (function() {
+  // private data
+  var Income = function(id, description, value) {
     this.id = id;
     this.description = description;
     this.value = value;
   };
 
-  var Expense = function (id, description, value) {
+  // private data
+  var Expense = function(id, description, value) {
     this.id = id;
     this.description = description;
     this.value = value;
   };
 
+  // private data
   var data = {
-    allItems: {
+    items: {
       inc: [],
-      exp: [],
+      exp: []
     },
 
     totals: {
       inc: 0,
-      exp: 0,
+      exp: 0
+    }
+  };
+
+  return {
+    addItem: function(type, desc, val) {
+      var item, id;
+
+      if (data.items[type].length === 0) id = 1;
+      else {
+        id = data.items[type][data.items[type].length - 1].id + 1;
+      }
+
+      if (type === "inc") {
+        item = new Income(id, desc, val);
+      } else {
+        item = new Expense(id, desc, val);
+      }
+
+      data.items[type].push(item);
     },
+
+    seeData: function() {
+      return data;
+    }
   };
 })();
 
 // App connector controller
-var appController = (function (uiController, financeController) {
-  var ctrlAddItem = function () {
+var appController = (function(uiController, financeController) {
+
+  var ctrlAddItem = function() {
     // 1. Find input data from display
-    console.log(uiController.getInput());
+    var input = uiController.getInput();
 
     // 2. Save the data to the finance controller
+    financeController.addItem(input.type, input.description, input.value);
 
     // 3. Display the data to right place
 
@@ -64,26 +93,29 @@ var appController = (function (uiController, financeController) {
     // 5. Final remainder, display calculated data
   };
 
-  var setupEventListener = function () {
+  var setupEventListeners = function() {
     var DOM = uiController.getDOMstrings();
-    document.querySelector(DOM.addBtn).addEventListener("click", function () {
+
+    document.querySelector(DOM.addBtn).addEventListener("click", function() {
       ctrlAddItem();
     });
-    document.addEventListener("keypress", function (event) {
+
+    document.addEventListener("keypress", function(event) {
       if (event.keyCode === 13 || event.which === 13) {
         ctrlAddItem();
-      } else {
       }
     });
   };
 
   return {
-    init: function () {
+    init: function() {
       console.log("Application started...");
-      setupEventListener();
-    },
+      setupEventListeners();
+    }
   };
 })(uiController, financeController);
+
+appController.init();
 
 /*
 
