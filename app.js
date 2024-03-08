@@ -14,7 +14,7 @@ var uiController = (function () {
       return {
         type: document.querySelector(DOMstrings.inputType).value, // exp, inc
         description: document.querySelector(DOMstrings.inputDescription).value,
-        value: document.querySelector(DOMstrings.inputValue).value,
+        value: parseInt(document.querySelector(DOMstrings.inputValue).value),
       };
     },
 
@@ -123,12 +123,14 @@ var appController = (function (uiController, financeController) {
     // 1. Find input data from display
     var input = uiController.getInput();
 
-    // 2. Save the data to the finance controller
-    var item = financeController.addItem(
-      input.type,
-      input.description,
-      input.value
-    );
+    if (input.description !== "" && input.value !== "") {
+      // 2. Save the data to the finance controller
+      var item = financeController.addItem(
+        input.type,
+        input.description,
+        input.value
+      );
+    }
 
     // 3. Display the data to right place
     uiController.addListItem(item, input.type);
