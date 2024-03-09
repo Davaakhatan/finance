@@ -78,6 +78,15 @@ var financeController = (function () {
     this.value = value;
   };
 
+  var calculateTotal = function (type) {
+    var sum = 0;
+    data.items[type].forEach(function (el) {
+      sum = sum + el.value;
+    });
+
+    data.totals[type] = sum;
+  };
+
   // private data
   var data = {
     items: {
@@ -89,9 +98,35 @@ var financeController = (function () {
       inc: 0,
       exp: 0,
     },
+
+    budget: 0,
+
+    percent: 0,
   };
 
   return {
+    calculateBudget: function () {
+      // calculate total income
+      calculateTotal("inc");
+      // calculate total expense
+      calculateTotal("exp");
+
+      // new calculate budget
+      data.budget = data.totals.inc - data.totals.exp;
+
+      // Calculate percent of inc and exp
+      data.percent = Math.round((data.totals.exp / data.totals.inc) * 100);
+    },
+
+    getBudget: function () {
+      return {
+        budget: data.budget,
+        percent: data.percent,
+        totalInc: data.totals.inc,
+        totalExp: data.totals.exp,
+      };
+    },
+
     addItem: function (type, desc, val) {
       var item, id;
 
@@ -135,9 +170,14 @@ var appController = (function (uiController, financeController) {
     // 3. Display the data to right place
     uiController.addListItem(item, input.type);
     uiController.clearFields();
-    // 4. Calculate the budget
 
+    // 4. Calculate the budget
+    financeController.calculateBudget();
     // 5. Final remainder, display calculated data
+    var budget = financeController.getBudget();
+
+    // 6. Display the final calculation
+    console.log(budget);
   };
 
   var setupEventListeners = function () {
