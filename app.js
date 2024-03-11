@@ -13,6 +13,7 @@ var uiController = (function () {
     percentageLabel: ".budget__expenses--percentage",
     containerDiv: ".container",
     expensePercentageLabel: ".item__percentage",
+    dateLabel: ".budget__title--month",
   };
 
   var nodeListForeach = function (list, callback) {
@@ -21,7 +22,36 @@ var uiController = (function () {
     }
   };
 
+  var formatMoney = function (num, type) {
+    num = "" + num;
+
+    var x = num.split("").reverse().join("");
+
+    var y = "";
+    var count = 1;
+
+    for (var i = 0; i < x.length; i++) {
+      y = y + x[i];
+      if (count % 3 === 0) y = y + ",";
+      count++;
+    }
+
+    var z = y.split("").reverse().join("");
+
+    if (z[0] === ",") z = z.substr(1, z.length - 1);
+    if (type === "inc") z = "+ " + z;
+    else z = "- " + z;
+
+    return z;
+  };
+
   return {
+    displayUpdate: function () {
+      var today = new Date();
+
+      document.querySelector(DOMstrings.dateLabel).textContent =
+        today.getMonth() + " of " + today.getFullYear() + " year ";
+    },
     getInput: function () {
       return {
         type: document.querySelector(DOMstrings.inputType).value, // exp, inc
@@ -32,7 +62,7 @@ var uiController = (function () {
 
     displayPercentages: function (allPercentages) {
       // Find exp NodeList
-      var elements = Document.querySelectorAll(
+      var elements = document.querySelectorAll(
         DOMstrings.expensePercentageLabel
       );
 
@@ -61,12 +91,21 @@ var uiController = (function () {
     },
 
     displayBudget: function (budget) {
-      document.querySelector(DOMstrings.budgetLabel).textContent =
-        budget.budget;
-      document.querySelector(DOMstrings.incomeLabel).textContent =
-        budget.totalInc;
-      document.querySelector(DOMstrings.expenseLabel).textContent =
-        budget.totalExp;
+      var type;
+      if (budget.budget > 0) type = "inc";
+      else type = "exp";
+      document.querySelector(DOMstrings.budgetLabel).textContent = formatMoney(
+        budget.budget,
+        type
+      );
+      document.querySelector(DOMstrings.incomeLabel).textContent = formatMoney(
+        budget.totalInc,
+        "inc"
+      );
+      document.querySelector(DOMstrings.expenseLabel).textContent = formatMoney(
+        budget.totalExp,
+        "exp"
+      );
       if (budget.percent !== 0) {
         document.querySelector(DOMstrings.percentageLabel).textContent =
           budget.percent + "%";
@@ -96,7 +135,7 @@ var uiController = (function () {
       // on that HTML, use replace function to modify income and expense
       html = html.replace("%id%", item.id);
       html = html.replace("$$DESCRIPTION$$", item.description);
-      html = html.replace("$$VALUE$$", item.value);
+      html = html.replace("$$VALUE$$", formatMoney(item.value, type));
       // into DOM
       document.querySelector(list).insertAdjacentHTML("beforeend", html);
     },
@@ -316,6 +355,7 @@ var appController = (function (uiController, financeController) {
   return {
     init: function () {
       console.log("Application started...");
+      uiController.displayUpdate();
       uiController.displayBudget({
         budget: 0,
         percent: 0,
