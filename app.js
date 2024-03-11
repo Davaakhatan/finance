@@ -12,6 +12,13 @@ var uiController = (function () {
     expenseLabel: ".budget__expenses--value",
     percentageLabel: ".budget__expenses--percentage",
     containerDiv: ".container",
+    expensePercentageLabel: ".item__percentage",
+  };
+
+  var nodeListForeach = function (list, callback) {
+    for (var i = 0; i < list.length; i++) {
+      callback(list[i], i);
+    }
   };
 
   return {
@@ -21,6 +28,18 @@ var uiController = (function () {
         description: document.querySelector(DOMstrings.inputDescription).value,
         value: parseInt(document.querySelector(DOMstrings.inputValue).value),
       };
+    },
+
+    displayPercentages: function (allPercentages) {
+      // Find exp NodeList
+      var elements = Document.querySelectorAll(
+        DOMstrings.expensePercentageLabel
+      );
+
+      // for each element get the percent from expense
+      nodeListForeach(elements, function (el, index) {
+        el.textContent = allPercentages[index];
+      });
     },
 
     getDOMstrings: function () {
@@ -57,7 +76,7 @@ var uiController = (function () {
       }
     },
 
-    deleteListItem: function(id){
+    deleteListItem: function (id) {
       var el = document.getElementById(id);
       el.parentNode.removeChild(el);
     },
@@ -92,6 +111,7 @@ var financeController = (function () {
     this.id = id;
     this.description = description;
     this.value = value;
+    this.percentage = -1;
   };
 
   // private data
@@ -99,6 +119,16 @@ var financeController = (function () {
     this.id = id;
     this.description = description;
     this.value = value;
+  };
+
+  Expense.prototype.calcPercentage = function (totalIncome) {
+    if (totalIncome > 0)
+      this.percentage = Math.round((this.value / totalIncome) * 100);
+    else this.percentage = 0;
+  };
+
+  Expense.prototype.getPercentage = function () {
+    return this.percentage;
   };
 
   var calculateTotal = function (type) {
@@ -138,7 +168,23 @@ var financeController = (function () {
       data.budget = data.totals.inc - data.totals.exp;
 
       // Calculate percent of inc and exp
-      data.percent = Math.round((data.totals.exp / data.totals.inc) * 100);
+      if (data.totals.inc > 0)
+        data.percent = Math.round((data.totals.exp / data.totals.inc) * 100);
+      else data.percent = 0;
+    },
+
+    calculatePercentages: function () {
+      data.items.exp.forEach(function (el) {
+        el.calcPercentage(data.totals.inc);
+      });
+    },
+
+    getPercentages: function () {
+      var allPercentages = data.items.exp.map(function (el) {
+        return el.getPercentage();
+      });
+
+      return allPercentages;
     },
 
     getBudget: function () {
@@ -209,6 +255,11 @@ var appController = (function (uiController, financeController) {
     uiController.addListItem(item, input.type);
     uiController.clearFields();
 
+    // Calculate new budget
+    updateBudget();
+  };
+
+  var updateBudget = function () {
     // 4. Calculate the budget
     financeController.calculateBudget();
     // 5. Final remainder, display calculated data
@@ -216,6 +267,16 @@ var appController = (function (uiController, financeController) {
 
     // 6. Display the final calculation
     uiController.displayBudget(budget);
+
+    // 7. Calculate percent of element
+    financeController.calculatePercentages();
+
+    // 8. receive the percent of element
+    var allPercentages = financeController.getPercentages();
+
+    // 9. display it
+    uiController.displayPercentages(allPercentages);
+    // console.log(allPercentages);
   };
 
   var setupEventListeners = function () {
@@ -247,6 +308,7 @@ var appController = (function (uiController, financeController) {
           // 2. delete it from the display
           uiController.deleteListItem(id);
           // 3. calculate remaining and display it.
+          updateBudget();
         }
       });
   };
