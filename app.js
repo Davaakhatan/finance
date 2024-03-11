@@ -60,6 +60,22 @@ var uiController = (function () {
       };
     },
 
+    changeType: function () {
+      var fields = document.querySelectorAll(
+        DOMstrings.inputType +
+          ", " +
+          DOMstrings.inputDescription +
+          ", " +
+          DOMstrings.inputValue
+      );
+
+      nodeListForeach(fields, function (el) {
+        el.classList.toggle("red-focus");
+      });
+
+      document.querySelector(DOMstrings.addBtn).classList.toggle("red");
+    },
+
     displayPercentages: function (allPercentages) {
       // Find exp NodeList
       var elements = document.querySelectorAll(
@@ -330,6 +346,10 @@ var appController = (function (uiController, financeController) {
         ctrlAddItem();
       }
     });
+
+    document
+      .querySelector(DOM.inputType)
+      .addEventListener("change", uiController.changeType);
 
     document
       .querySelector(DOM.containerDiv)
